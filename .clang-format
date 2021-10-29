@@ -1,0 +1,31 @@
+---
+BasedOnStyle: LLVM
+IndentWidth: 4
+---
+Language: Cpp
+BasedOnStyle: Google
+AccessModifierOffset: '-4'
+AlignAfterOpenBracket: 'Align'
+AlignConsecutiveAssignments: 'true'
+AlignConsecutiveDeclarations: 'true'
+AlignConsecutiveMacros: 'true'
+AlignEscapedNewlines: 'Right'
+AlignTrailingComments: 'true'
+AllowAllArgumentsOnNextLine: 'true'
+AlignTrailingComments: 'true'
+AllowAllParametersOfDeclarationOnNextLine: 'false'
+AlwaysBreakTemplateDeclarations: 'No'
+BreakBeforeBraces: Attach
+ColumnLimit: '140'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+IncludeBlocks: Regroup
+IndentPPDirectives: BeforeHash 
+IndentWidth: '4'
+NamespaceIndentation: All
+BreakBeforeBinaryOperators: All
+BreakBeforeTernaryOperators: 'true'
+DerivePointerAlignment: 'false'
+PointerAlignment: "Left"
+---
+Language: Proto
+DisableFormat: true
