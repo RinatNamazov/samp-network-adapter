@@ -69,37 +69,42 @@ void Plugin::parseCmdArgs(std::string& adapterAddress) {
 }
 
 void Plugin::initializePatchs() {
+    uintptr_t rakPeerInitAddr = sm_sampBaseAddress;
+    sm_patchCallAddress += sm_sampBaseAddress;
+
     switch (sm_sampVersion) {
         case SampVersion::SAMP_037_R1: {
-            sm_RakPeer__Initialize = reinterpret_cast<t_RakPeer__Initialize>(sm_sampBaseAddress + 0x3ECB0);
-            sm_patchCallAddress    = sm_sampBaseAddress + 0x30667;
+            rakPeerInitAddr += 0x3ECB0;
+            sm_patchCallAddress += 0x30667;
             break;
         }
         case SampVersion::SAMP_037_R2: {
-            sm_RakPeer__Initialize = reinterpret_cast<t_RakPeer__Initialize>(sm_sampBaseAddress + 0x3ED90);
-            sm_patchCallAddress    = sm_sampBaseAddress + 0x30747;
+            rakPeerInitAddr += 0x3ED90;
+            sm_patchCallAddress += 0x30747;
             break;
         }
         case SampVersion::SAMP_037_R3:
         case SampVersion::SAMP_037_R3_1: {
-            sm_RakPeer__Initialize = reinterpret_cast<t_RakPeer__Initialize>(sm_sampBaseAddress + 0x42060);
-            sm_patchCallAddress    = sm_sampBaseAddress + 0x33A17;
+            rakPeerInitAddr += 0x42060;
+            sm_patchCallAddress += 0x33A17;
             break;
         }
         case SampVersion::SAMP_037_R4: {
-            sm_RakPeer__Initialize = reinterpret_cast<t_RakPeer__Initialize>(sm_sampBaseAddress + 0x427A0);
-            sm_patchCallAddress    = sm_sampBaseAddress + 0x34157;
+            rakPeerInitAddr += 0x427A0;
+            sm_patchCallAddress += 0x34157;
             break;
         }
         case SampVersion::SAMP_03DL_R1: {
-            sm_RakPeer__Initialize = reinterpret_cast<t_RakPeer__Initialize>(sm_sampBaseAddress + 0x42260);
-            sm_patchCallAddress    = sm_sampBaseAddress + 0x33C17;
+            rakPeerInitAddr += 0x42260;
+            sm_patchCallAddress += 0x33C17;
             break;
         }
         case SampVersion::SAMP_UNKNOWN:
         default:
             break;
     }
+
+    sm_RakPeer__Initialize = reinterpret_cast<t_RakPeer__Initialize>(rakPeerInitAddr);
 
     PatchCallAddress(sm_patchCallAddress, hook_RakPeer__Initialize);
 }
