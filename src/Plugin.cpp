@@ -101,7 +101,7 @@ void Plugin::initializePatchs() {
             break;
     }
 
-    PatchCallAddress(sm_sampBaseAddress + 0x33C17, hook_RakPeer__Initialize);
+    PatchCallAddress(sm_patchCallAddress, hook_RakPeer__Initialize);
 }
 
 bool Plugin::detectSampVersion() {
