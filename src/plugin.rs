@@ -81,10 +81,12 @@ impl Plugin {
     fn parse_cmd_args() -> Option<String> {
         let args: Vec<String> = std::env::args().collect();
 
-        for (pos, arg) in args.iter().enumerate() {
-            if arg == "--adapter_address" {
-                let next_arg = &args[pos + 1];
-                return Some(next_arg.clone());
+        if args.len() % 2 == 0 {
+            for (pos, arg) in args.iter().enumerate() {
+                if arg == "--adapter_address" {
+                    let next_arg = &args[pos + 1];
+                    return Some(next_arg.clone());
+                }
             }
         }
 
