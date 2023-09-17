@@ -18,6 +18,8 @@ pub enum SampVersion {
     V037R3,
     V037R3_1,
     V037R4,
+    V037R4_2,
+    V037R5,
     V03DLR1,
 }
 
@@ -36,6 +38,8 @@ pub fn get_samp_version(base_address: usize) -> Result<SampVersion, &'static str
         0xCC490 => Ok(SampVersion::V037R3),
         0xCC4D0 => Ok(SampVersion::V037R3_1),
         0xCBCD0 => Ok(SampVersion::V037R4),
+        0xCBCB0 => Ok(SampVersion::V037R4_2),
+        0xCBC90 => Ok(SampVersion::V037R5),
         0xFDB60 => Ok(SampVersion::V03DLR1),
         _ => Err("Unknown SA-MP version."),
     }

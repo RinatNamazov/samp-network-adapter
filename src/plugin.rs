@@ -105,7 +105,8 @@ impl Plugin {
             SampVersion::V037R1 => 0x30667,
             SampVersion::V037R2 => 0x30747,
             SampVersion::V037R3 | SampVersion::V037R3_1 => 0x33A17,
-            SampVersion::V037R4 => 0x34157,
+            SampVersion::V037R4 => 0x34107,
+            SampVersion::V037R4_2 | SampVersion::V037R5 => 0x34157,
             SampVersion::V03DLR1 => 0x33C17,
         }
     }
