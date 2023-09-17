@@ -56,22 +56,21 @@ impl Plugin {
         let rakpeer_initialize: RakPeerInitializeFuncType =
             unsafe { std::mem::transmute(utils::extract_call_target_address(patch_call_address)) };
 
-        let network_adapter_address: CString;
-
-        match Plugin::parse_cmd_args() {
-            Some(adapter) => network_adapter_address = CString::new(adapter).unwrap(),
+        let network_adapter_address = match Plugin::parse_cmd_args() {
+            Some(adapter) => CString::new(adapter).unwrap(),
             None => match Ini::load_from_file(CONFIG_FILENAME) {
                 Ok(conf) => {
-                    let section = conf.section(Some("ri_network_adapter")).unwrap();
-                    let address = section.get("address").unwrap();
+                    let section = conf
+                        .section(Some("ri_network_adapter"))
+                        .expect("section not found");
+                    let address = section.get("address").expect("address not found");
 
-                    network_adapter_address = CString::new(address).unwrap();
+                    CString::new(address).unwrap()
                 }
-                Err(_) => {
-                    network_adapter_address = CString::new("127.0.0.1").unwrap();
-                }
+                Err(_) => CString::new("127.0.0.1").unwrap(),
             },
-        }
+        };
+
         Plugin {
             patch_call_address,
             rakpeer_initialize,
