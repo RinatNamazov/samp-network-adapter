@@ -43,7 +43,9 @@ pub struct Plugin {
 impl Drop for Plugin {
     fn drop(&mut self) {
         // Unhook
-        utils::patch_call_address(self.patch_call_address, self.rakpeer_initialize as usize);
+        unsafe {
+            utils::patch_call_address(self.patch_call_address, self.rakpeer_initialize as usize);
+        }
     }
 }
 
@@ -94,7 +96,9 @@ impl Plugin {
     }
 
     fn initialize_patchs(&self) {
-        utils::patch_call_address(self.patch_call_address, hook_rakpeer_initialize as usize);
+        unsafe {
+            utils::patch_call_address(self.patch_call_address, hook_rakpeer_initialize as usize);
+        }
     }
 
     fn get_addresses(samp_base_address: usize, samp_version: SampVersion) -> (usize, usize) {

@@ -20,17 +20,18 @@ pub fn get_module_handle(name: &str) -> HMODULE {
     unsafe { GetModuleHandleA(c_name.as_ptr()) }
 }
 
-pub fn patch_pointer(address: usize, value: usize) {
+pub unsafe fn patch_pointer(address: usize, value: usize) {
     let address = address as LPVOID;
     let size = std::mem::size_of::<usize>();
     let mut vp: DWORD = PAGE_EXECUTE_READWRITE;
-    unsafe {
-        VirtualProtect(address, size, vp, &mut vp);
-        *(address as *mut usize) = value;
-        VirtualProtect(address, size, vp, &mut vp);
-    }
+    VirtualProtect(address, size, vp, &mut vp);
+    *(address as *mut usize) = value;
+    VirtualProtect(address, size, vp, &mut vp);
 }
 
-pub fn patch_call_address(address: usize, value: usize) {
-    patch_pointer(address + 1, value - address - 5)
+pub unsafe fn patch_call_address(address: usize, value: usize) {
+    patch_pointer(
+        address + 1,
+        value - address - std::mem::size_of::<*const usize>(),
+    )
 }
