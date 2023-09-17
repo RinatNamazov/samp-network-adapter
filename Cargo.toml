@@ -1,6 +1,6 @@
 [package]
 name = "samp_network_adapter"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Rinat Namazov <rinat.namazov@rinwares.com>"]
 edition = "2021"
 
