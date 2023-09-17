@@ -110,7 +110,7 @@ impl Plugin {
                 rakpeer_initialize = samp_base_address + 0x3ED90;
                 patch_call_address = samp_base_address + 0x30747;
             }
-            SampVersion::V037R3 | SampVersion::V037R3A => {
+            SampVersion::V037R3 | SampVersion::V037R3_1 => {
                 rakpeer_initialize = samp_base_address + 0x42060;
                 patch_call_address = samp_base_address + 0x33A17;
             }
@@ -121,10 +121,6 @@ impl Plugin {
             SampVersion::V03DLR1 => {
                 rakpeer_initialize = samp_base_address + 0x42260;
                 patch_call_address = samp_base_address + 0x33C17;
-            }
-            SampVersion::Unknown => {
-                rakpeer_initialize = 0;
-                patch_call_address = 0;
             }
         }
 
@@ -139,11 +135,11 @@ pub fn initialize() {
     }
 
     let samp_version = samp::get_samp_version(samp_base_address);
-    if samp_version == SampVersion::Unknown {
+    if samp_version.is_err() {
         return;
     }
 
-    let plugin = Plugin::new(samp_base_address, samp_version);
+    let plugin = Plugin::new(samp_base_address, samp_version.unwrap());
     plugin.initialize_patchs();
 
     unsafe {
