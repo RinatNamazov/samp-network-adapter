@@ -51,11 +51,10 @@ impl Drop for Plugin {
 
 impl Plugin {
     pub fn new(samp_base_address: usize, samp_version: SampVersion) -> Plugin {
-        let (rakpeer_initialize, patch_call_address) =
-            Plugin::get_addresses(samp_base_address, samp_version);
+        let patch_call_address = samp_base_address + Plugin::get_patch_call_offset(samp_version);
 
-        let rakpeer_initialize =
-            unsafe { std::mem::transmute::<usize, RakPeerInitializeFuncType>(rakpeer_initialize) };
+        let rakpeer_initialize: RakPeerInitializeFuncType =
+            unsafe { std::mem::transmute(utils::extract_call_target_address(patch_call_address)) };
 
         let network_adapter_address: CString;
 
@@ -101,34 +100,14 @@ impl Plugin {
         }
     }
 
-    fn get_addresses(samp_base_address: usize, samp_version: SampVersion) -> (usize, usize) {
-        let rakpeer_initialize: usize;
-        let patch_call_address: usize;
-
+    fn get_patch_call_offset(samp_version: SampVersion) -> usize {
         match samp_version {
-            SampVersion::V037R1 => {
-                rakpeer_initialize = samp_base_address + 0x3ECB0;
-                patch_call_address = samp_base_address + 0x30667;
-            }
-            SampVersion::V037R2 => {
-                rakpeer_initialize = samp_base_address + 0x3ED90;
-                patch_call_address = samp_base_address + 0x30747;
-            }
-            SampVersion::V037R3 | SampVersion::V037R3_1 => {
-                rakpeer_initialize = samp_base_address + 0x42060;
-                patch_call_address = samp_base_address + 0x33A17;
-            }
-            SampVersion::V037R4 => {
-                rakpeer_initialize = samp_base_address + 0x427A0;
-                patch_call_address = samp_base_address + 0x34157;
-            }
-            SampVersion::V03DLR1 => {
-                rakpeer_initialize = samp_base_address + 0x42260;
-                patch_call_address = samp_base_address + 0x33C17;
-            }
+            SampVersion::V037R1 => 0x30667,
+            SampVersion::V037R2 => 0x30747,
+            SampVersion::V037R3 | SampVersion::V037R3_1 => 0x33A17,
+            SampVersion::V037R4 => 0x34157,
+            SampVersion::V03DLR1 => 0x33C17,
         }
-
-        (rakpeer_initialize, patch_call_address)
     }
 }
 

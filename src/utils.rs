@@ -35,3 +35,7 @@ pub unsafe fn patch_call_address(address: usize, value: usize) {
         value - address - std::mem::size_of::<*const usize>(),
     )
 }
+
+pub unsafe fn extract_call_target_address(address: usize) -> usize {
+    *((address + 0x1) as *const usize)
+}
