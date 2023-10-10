@@ -10,6 +10,7 @@
  *****************************************************************************/
 
 use std::ffi::CString;
+
 use winapi::shared::minwindef::{DWORD, HMODULE, LPVOID};
 use winapi::um::libloaderapi::GetModuleHandleA;
 use winapi::um::memoryapi::VirtualProtect;
@@ -30,12 +31,10 @@ pub unsafe fn patch_pointer(address: usize, value: usize) {
 }
 
 pub unsafe fn patch_call_address(address: usize, value: usize) {
-    patch_pointer(
-        address + 1,
-        value - address - std::mem::size_of::<*const usize>(),
-    )
+    patch_pointer(address + 1, value - address - 1 - 4);
 }
 
 pub unsafe fn extract_call_target_address(address: usize) -> usize {
-    *((address + 0x1) as *const usize)
+    let relative = *((address + 1) as *const usize);
+    address + relative + 1 + 4
 }
