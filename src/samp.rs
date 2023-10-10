@@ -9,7 +9,9 @@
  *
  *****************************************************************************/
 
-use winapi::um::winnt::{IMAGE_DOS_HEADER, IMAGE_NT_HEADERS32};
+use windows::Win32::System::{
+    Diagnostics::Debug::IMAGE_NT_HEADERS32, SystemServices::IMAGE_DOS_HEADER,
+};
 
 #[derive(Debug, Clone, Copy, PartialOrd, PartialEq)]
 pub enum SampVersion {

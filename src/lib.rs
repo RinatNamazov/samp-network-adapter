@@ -9,21 +9,24 @@
  *
  *****************************************************************************/
 
-use winapi::shared::minwindef::{BOOL, DWORD, HMODULE, LPVOID, TRUE};
-use winapi::um::libloaderapi::DisableThreadLibraryCalls;
-use winapi::um::winnt::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH};
+use windows::Win32::{
+    Foundation::{BOOL, HMODULE, TRUE},
+    System::{
+        LibraryLoader::DisableThreadLibraryCalls,
+        SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH},
+    },
+};
 
 pub mod plugin;
 pub mod samp;
 pub mod utils;
 
-#[allow(non_snake_case)]
 #[no_mangle]
-pub extern "system" fn DllMain(instance: HMODULE, reason: DWORD, _reserved: LPVOID) -> BOOL {
+extern "stdcall" fn DllMain(instance: HMODULE, reason: u32, _reserved: *mut ()) -> BOOL {
     match reason {
         DLL_PROCESS_ATTACH => {
             unsafe {
-                DisableThreadLibraryCalls(instance);
+                DisableThreadLibraryCalls(instance).unwrap();
             }
             plugin::initialize();
         }

@@ -9,14 +9,17 @@
  *
  *****************************************************************************/
 
-use crate::samp;
-use crate::samp::SampVersion;
-use crate::utils;
+use std::{
+    ffi::{CStr, CString},
+    os::raw::c_char,
+    ptr,
+    sync::Once,
+};
+
 use ini::Ini;
-use std::ffi::{CStr, CString};
-use std::os::raw::c_char;
-use std::ptr;
-use std::sync::Once;
+use windows::{core::w, Win32::System::LibraryLoader::GetModuleHandleW};
+
+use crate::{samp, samp::SampVersion, utils};
 
 const CONFIG_FILENAME: &str = "RiNetworkAdapter.ini";
 
@@ -112,10 +115,11 @@ impl Plugin {
 }
 
 pub fn initialize() {
-    let samp_base_address = utils::get_module_handle("samp.dll") as usize;
-    if samp_base_address == 0 {
+    let samp_base_address = unsafe { GetModuleHandleW(w!("samp.dll")) }.unwrap();
+    if samp_base_address.is_invalid() {
         return;
     }
+    let samp_base_address = samp_base_address.0 as usize;
 
     let samp_version = samp::get_samp_version(samp_base_address);
     if samp_version.is_err() {

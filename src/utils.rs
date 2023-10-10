@@ -9,25 +9,17 @@
  *
  *****************************************************************************/
 
-use std::ffi::CString;
+use std::ffi::c_void;
 
-use winapi::shared::minwindef::{DWORD, HMODULE, LPVOID};
-use winapi::um::libloaderapi::GetModuleHandleA;
-use winapi::um::memoryapi::VirtualProtect;
-use winapi::um::winnt::PAGE_EXECUTE_READWRITE;
-
-pub fn get_module_handle(name: &str) -> HMODULE {
-    let c_name = CString::new(name).unwrap();
-    unsafe { GetModuleHandleA(c_name.as_ptr()) }
-}
+use windows::Win32::System::Memory::{VirtualProtect, PAGE_EXECUTE_READWRITE};
 
 pub unsafe fn patch_pointer(address: usize, value: usize) {
-    let address = address as LPVOID;
+    let address = address as *const c_void;
     let size = std::mem::size_of::<usize>();
-    let mut vp: DWORD = PAGE_EXECUTE_READWRITE;
-    VirtualProtect(address, size, vp, &mut vp);
+    let mut vp = PAGE_EXECUTE_READWRITE;
+    VirtualProtect(address, size, vp, &mut vp).unwrap();
     *(address as *mut usize) = value;
-    VirtualProtect(address, size, vp, &mut vp);
+    VirtualProtect(address, size, vp, &mut vp).unwrap();
 }
 
 pub unsafe fn patch_call_address(address: usize, value: usize) {
