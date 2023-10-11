@@ -26,9 +26,8 @@ const CONFIG_FILENAME: &str = "RiNetworkAdapter.ini";
 const LOCAL_IP_ADDRESS: &str = "127.0.0.1";
 
 // thiscall
-type RakPeerInitializeFuncType = extern "fastcall" fn(
-    ecx: usize,
-    edx: usize,
+type RakPeerInitializeFuncType = extern "thiscall" fn(
+    this: usize,
     max_connections: u16,
     local_port: u16,
     thread_sleep_timer: i32,
@@ -128,9 +127,8 @@ pub fn uninitialize() {
     }
 }
 
-extern "fastcall" fn hook_rakpeer_initialize(
-    ecx: usize,
-    edx: usize,
+extern "thiscall" fn hook_rakpeer_initialize(
+    this: usize,
     max_connections: u16,
     local_port: u16,
     thread_sleep_timer: i32,
@@ -146,8 +144,7 @@ extern "fastcall" fn hook_rakpeer_initialize(
     };
 
     (plugin.rakpeer_initialize)(
-        ecx,
-        edx,
+        this,
         max_connections,
         local_port,
         thread_sleep_timer,
