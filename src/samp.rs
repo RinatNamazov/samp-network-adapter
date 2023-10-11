@@ -3,8 +3,8 @@
  *  PROJECT:        RiNetworkAdapter
  *  LICENSE:        See LICENSE in the top level directory
  *  FILE:           samp.rs
- *  DESCRIPTION:    SA:MP misc functions
- *  COPYRIGHT:      (c) 2021 RINWARES <rinwares.com>
+ *  DESCRIPTION:    SA-MP misc functions
+ *  COPYRIGHT:      (c) 2021, 2023 RINWARES <rinwares.com>
  *  AUTHOR:         Rinat Namazov <rinat.namazov@rinwares.com>
  *
  *****************************************************************************/

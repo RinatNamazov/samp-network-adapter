@@ -4,7 +4,7 @@
  *  LICENSE:        See LICENSE in the top level directory
  *  FILE:           lib.rs
  *  DESCRIPTION:    DllMain
- *  COPYRIGHT:      (c) 2021 RINWARES <rinwares.com>
+ *  COPYRIGHT:      (c) 2021, 2023 RINWARES <rinwares.com>
  *  AUTHOR:         Rinat Namazov <rinat.namazov@rinwares.com>
  *
  *****************************************************************************/

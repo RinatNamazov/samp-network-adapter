@@ -4,7 +4,7 @@
  *  LICENSE:        See LICENSE in the top level directory
  *  FILE:           plugin.rs
  *  DESCRIPTION:    Plugin
- *  COPYRIGHT:      (c) 2021 RINWARES <rinwares.com>
+ *  COPYRIGHT:      (c) 2021, 2023 RINWARES <rinwares.com>
  *  AUTHOR:         Rinat Namazov <rinat.namazov@rinwares.com>
  *
  *****************************************************************************/
