@@ -10,10 +10,10 @@
  *****************************************************************************/
 
 use std::{
+    cell::OnceCell,
     ffi::{CStr, CString},
     os::raw::c_char,
     ptr,
-    sync::Once,
 };
 
 use ini::Ini;
@@ -35,7 +35,7 @@ type RakPeerInitializeFuncType = extern "fastcall" fn(
     force_host_address: *const c_char,
 ) -> bool;
 
-static mut PLUGIN: Option<Plugin> = None;
+static mut PLUGIN: OnceCell<Plugin> = OnceCell::new();
 
 pub struct Plugin {
     patch_call_address: usize,
@@ -70,9 +70,13 @@ impl Plugin {
 
                     CString::new(address).unwrap()
                 }
-                Err(_) => CString::new("127.0.0.1").unwrap(),
+                Err(_) => CString::default(),
             },
         };
+
+        unsafe {
+            utils::patch_call_address(patch_call_address, hook_rakpeer_initialize as usize);
+        }
 
         Plugin {
             patch_call_address,
@@ -82,24 +86,17 @@ impl Plugin {
     }
 
     fn parse_cmd_args() -> Option<String> {
-        let args: Vec<String> = std::env::args().collect();
+        let mut args = std::env::args();
 
-        if args.len() % 2 == 0 {
-            for (pos, arg) in args.iter().enumerate() {
-                if arg == "--adapter_address" {
-                    let next_arg = &args[pos + 1];
-                    return Some(next_arg.clone());
+        while let Some(arg) = args.next() {
+            if arg == "--adapter_address" {
+                if let Some(next_arg) = args.next() {
+                    return Some(next_arg);
                 }
             }
         }
 
         None
-    }
-
-    fn initialize_patchs(&self) {
-        unsafe {
-            utils::patch_call_address(self.patch_call_address, hook_rakpeer_initialize as usize);
-        }
     }
 
     fn get_patch_call_offset(samp_version: SampVersion) -> usize {
@@ -115,31 +112,20 @@ impl Plugin {
 }
 
 pub fn initialize() {
-    let samp_base_address = unsafe { GetModuleHandleW(w!("samp.dll")) }.unwrap();
-    if samp_base_address.is_invalid() {
-        return;
-    }
-    let samp_base_address = samp_base_address.0 as usize;
-
-    let samp_version = samp::get_samp_version(samp_base_address);
-    if samp_version.is_err() {
-        return;
-    }
-
-    let plugin = Plugin::new(samp_base_address, samp_version.unwrap());
-    plugin.initialize_patchs();
-
-    unsafe {
-        PLUGIN = Some(plugin);
+    if let Ok(samp_base_address) = unsafe { GetModuleHandleW(w!("samp.dll")) } {
+        if !samp_base_address.is_invalid() {
+            let samp_base_address = samp_base_address.0 as usize;
+            if let Ok(samp_version) = samp::get_samp_version(samp_base_address) {
+                unsafe { PLUGIN.get_or_init(|| Plugin::new(samp_base_address, samp_version)) };
+            }
+        }
     }
 }
 
 pub fn uninitialize() {
-    static DESTROY: Once = Once::new();
-
-    DESTROY.call_once(|| unsafe {
+    unsafe {
         PLUGIN.take();
-    });
+    }
 }
 
 extern "fastcall" fn hook_rakpeer_initialize(
@@ -150,12 +136,13 @@ extern "fastcall" fn hook_rakpeer_initialize(
     thread_sleep_timer: i32,
     _force_host_address: *const c_char,
 ) -> bool {
-    let plugin = unsafe { PLUGIN.as_mut().unwrap() };
+    let plugin = unsafe { PLUGIN.get().unwrap() };
+    let adapter = &plugin.network_adapter_address;
 
-    let adapter_address = if plugin.network_adapter_address.to_str().unwrap() == LOCAL_IP_ADDRESS {
+    let adapter_address = if adapter.is_empty() || adapter.to_string_lossy() == LOCAL_IP_ADDRESS {
         ptr::null()
     } else {
-        plugin.network_adapter_address.as_ptr()
+        adapter.as_ptr()
     };
 
     (plugin.rakpeer_initialize)(
@@ -168,11 +155,11 @@ extern "fastcall" fn hook_rakpeer_initialize(
     )
 }
 
-#[allow(non_snake_case)]
 #[no_mangle]
 pub extern "C" fn SetNetworkAdapterAddress(address: *mut c_char) {
-    unsafe {
-        let plugin = PLUGIN.as_mut().unwrap();
-        plugin.network_adapter_address = CString::from(CStr::from_ptr(address));
-    }
+    let address = unsafe { CStr::from_ptr(address) };
+    let address = CString::from(address);
+
+    let plugin = unsafe { PLUGIN.get_mut().unwrap() };
+    plugin.network_adapter_address = address;
 }
